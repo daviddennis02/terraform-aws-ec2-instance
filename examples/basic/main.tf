@@ -5,7 +5,10 @@ provider "aws" {
 locals {
   user_data = <<EOF
 #!/bin/bash
-echo "Hello Terraform!"
+echo "Welcome!"
+sudo apt-get update
+sudo apt-get install -y nginx
+sudo nginx -v
 EOF
 }
 
@@ -46,8 +49,8 @@ module "security_group" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "~> 4.0"
 
-  name        = "example"
-  description = "Security group for example usage with EC2 instance"
+  name        = "dev"
+  description = "Security group for dev usage with EC2 instance"
   vpc_id      = data.aws_vpc.default.id
 
   ingress_cidr_blocks = ["0.0.0.0/0"]
@@ -77,9 +80,9 @@ resource "aws_network_interface" "this" {
 module "ec2" {
   source = "../../"
 
-  instance_count = 1
+  instance_count = 3
 
-  name          = "example-normal"
+  name          = "dev-normal"
   ami           = data.aws_ami.amazon_linux.id
   instance_type = "c5.large"
   subnet_id     = tolist(data.aws_subnet_ids.all.ids)[0]
@@ -122,7 +125,7 @@ module "ec2_with_t2_unlimited" {
 
   instance_count = 1
 
-  name          = "example-t2-unlimited"
+  name          = "dev-t2-unlimited"
   ami           = data.aws_ami.amazon_linux.id
   instance_type = "t2.micro"
   cpu_credits   = "unlimited"
@@ -137,7 +140,7 @@ module "ec2_with_t3_unlimited" {
 
   instance_count = 1
 
-  name                        = "example-t3-unlimited"
+  name                        = "dev-t3-unlimited"
   ami                         = data.aws_ami.amazon_linux.id
   instance_type               = "t3.large"
   cpu_credits                 = "unlimited"
@@ -151,7 +154,7 @@ module "ec2_with_metadata_options" {
 
   instance_count = 1
 
-  name                        = "example-metadata_options"
+  name                        = "dev-metadata_options"
   ami                         = data.aws_ami.amazon_linux.id
   instance_type               = "t2.small"
   subnet_id                   = tolist(data.aws_subnet_ids.all.ids)[0]
@@ -170,7 +173,7 @@ module "ec2_with_network_interface" {
 
   instance_count = 1
 
-  name            = "example-network"
+  name            = "dev-network"
   ami             = data.aws_ami.amazon_linux.id
   instance_type   = "c5.large"
   placement_group = aws_placement_group.web.id
@@ -190,7 +193,7 @@ module "ec2_zero" {
 
   instance_count = 0
 
-  name                   = "example-zero"
+  name                   = "dev-zero"
   ami                    = data.aws_ami.amazon_linux.id
   instance_type          = "c5.large"
   subnet_id              = tolist(data.aws_subnet_ids.all.ids)[0]
